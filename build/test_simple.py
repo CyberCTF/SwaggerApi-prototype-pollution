@@ -24,7 +24,7 @@ def test_basic_functionality():
         
         # Test 2: Login functionality
         print("Testing login functionality...")
-        login_data = {"username": "user1", "password": "password123"}
+        login_data = {"username": "alice", "password": "password123"}
         response = requests.post(f"{base_url}/login", json=login_data, timeout=10)
         if response.status_code == 200:
             print("✓ Login functionality: OK")

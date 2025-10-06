@@ -24,7 +24,7 @@ class PrototypePollutionTester:
             print(f"✗ Connectivity test failed: {e}")
             return False
     
-    def test_login(self, username="user1", password="password123"):
+    def test_login(self, username="alice", password="password123"):
         """Test user login functionality"""
         try:
             login_data = {"username": username, "password": password}
