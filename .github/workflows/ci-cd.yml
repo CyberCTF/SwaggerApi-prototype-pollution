@@ -1,0 +1,136 @@
+name: CI - Build, Test & Publish
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: 'npm'
+          cache-dependency-path: 'build/app/package-lock.json'
+    
+      - name: Install dependencies
+        run: |
+          cd build/app
+          npm ci
+    
+      - name: Build Docker image
+        run: |
+          cd build/deploy
+          docker-compose -f docker-compose.dev.yml build
+    
+      - name: Start application
+        run: |
+          cd build/deploy
+          docker-compose -f docker-compose.dev.yml up -d
+          sleep 30  # Wait for application to be ready
+    
+      - name: Install test dependencies
+        run: |
+          pip install requests
+    
+      - name: Run security tests
+        run: |
+          python -c "
+          import requests
+          import time
+          
+          # Test basic connectivity
+          try:
+              response = requests.get('http://localhost:3206', timeout=10)
+              print(f'Basic connectivity test: {response.status_code}')
+          except Exception as e:
+              print(f'Connectivity test failed: {e}')
+              exit(1)
+          
+          # Test API endpoints
+          try:
+              # Test login endpoint
+              login_data = {'username': 'user1', 'password': 'password123'}
+              response = requests.post('http://localhost:3206/login', json=login_data, timeout=10)
+              print(f'Login test: {response.status_code}')
+              
+              # Test profile endpoint
+              response = requests.get('http://localhost:3206/profile', timeout=10)
+              print(f'Profile test: {response.status_code}')
+              
+          except Exception as e:
+              print(f'API test failed: {e}')
+              exit(1)
+          "
+    
+      - name: Run prototype pollution exploit test
+        run: |
+          python build/test_prototype_pollution.py
+    
+      - name: Check application logs
+        if: failure()
+        run: |
+          cd build/deploy
+          docker-compose -f docker-compose.dev.yml logs
+    
+      - name: Cleanup
+        if: always()
+        run: |
+          cd build/deploy
+          docker-compose -f docker-compose.dev.yml down -v
+
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+    
+    - name: Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  docker-publish:
+    runs-on: ubuntu-latest
+    needs: [test, security-scan]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    
+    - name: Build and push
+      uses: docker/build-push-action@v5
+      with:
+        context: ./build/app
+        file: ./build/app/Dockerfile
+        push: true
+        tags: |
+          cyberctf/swaggerapi-prototype-pollution:latest
+          cyberctf/swaggerapi-prototype-pollution:${{ github.sha }}
+        platforms: linux/amd64,linux/arm64
