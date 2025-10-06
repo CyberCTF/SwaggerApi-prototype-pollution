@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  test:
+  test-install:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -24,8 +24,45 @@ jobs:
           cd build/app
           npm test || echo "No test script found, continuing..."
 
+  tests-python:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      
+      - name: Install Python dependencies
+        run: |
+          pip install requests pytest
+      
+      - name: Build Docker image for testing
+        run: |
+          cd build/app
+          docker build -t swaggerapi-test:latest .
+      
+      - name: Run Docker container
+        run: |
+          docker run -d -p 3206:3206 --name swaggerapi-test swaggerapi-test:latest
+          sleep 10
+      
+      - name: Run Python integration tests
+        run: |
+          cd build
+          python test_simple.py
+          python test_prototype_pollution.py
+      
+      - name: Stop Docker container
+        if: always()
+        run: |
+          docker stop swaggerapi-test || true
+          docker rm swaggerapi-test || true
+
   build-and-push:
-    needs: test
+    needs: [test-install, tests-python]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
