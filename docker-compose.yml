@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  prototype-pollution-ctf:
+    build: build/app
+    container_name: prototype-pollution-ctf
+    ports:
+      - "3206:3206"
+    environment:
+      - NODE_ENV=production
+      - PORT=3206
+      - FLAG=CTF{prototype_pollution_bypass_auth_2024}
+    restart: unless-stopped
+    # Limites de ressources pour éviter les abus
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+    # Sécurité: mode non-privilégié
+    security_opt:
+      - no-new-privileges:true
+    # Réseau isolé
+    networks:
+      - ctf-network
+
+networks:
+  ctf-network:
+    driver: bridge

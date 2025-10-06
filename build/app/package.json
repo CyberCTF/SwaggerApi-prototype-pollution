@@ -1,0 +1,24 @@
+{
+  "name": "prototype-pollution-ctf",
+  "version": "1.0.0",
+  "description": "CTF Challenge - Prototype Pollution in Node.js",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "lodash": "^4.17.21",
+    "body-parser": "^1.20.2",
+    "express-session": "^1.17.3",
+    "swagger-ui-express": "^5.0.0",
+    "swagger-jsdoc": "^6.2.8"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": ["ctf", "prototype-pollution", "security", "nodejs"],
+  "author": "CTF Challenge",
+  "license": "MIT"
+}
