@@ -47,7 +47,7 @@ const swaggerOptions = {
             username: {
               type: 'string',
               description: 'Nom d\'utilisateur',
-              example: 'user1'
+              example: 'alice'
             },
             password: {
               type: 'string',
@@ -113,7 +113,7 @@ app.get('/', (req, res) => {
 
 // Base de données utilisateurs simulée
 const users = {
-    'user1': { 
+    'alice': { 
         password: 'password123', 
         isAdmin: false, 
         email: 'alice.johnson@company.com',
@@ -121,7 +121,7 @@ const users = {
         department: 'Sales',
         role: 'user'
     },
-    'user2': { 
+    'bob': { 
         password: 'password456', 
         isAdmin: false, 
         email: 'bob.smith@company.com',
