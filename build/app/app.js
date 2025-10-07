@@ -26,7 +26,7 @@ const swaggerOptions = {
     info: {
       title: 'User Profile Management API',
       version: '1.0.0',
-      description: 'API de gestion des profils utilisateurs avec authentification et autorisation',
+      description: 'API to manage users with authentification and authorization',
       contact: {
         name: 'API Support',
         email: 'support@example.com'
@@ -35,7 +35,7 @@ const swaggerOptions = {
     servers: [
       {
         url: `http://localhost:${PORT}`,
-        description: 'Serveur de développement'
+        description: 'Server '
       }
     ],
     components: {
@@ -46,12 +46,12 @@ const swaggerOptions = {
           properties: {
             username: {
               type: 'string',
-              description: 'Nom d\'utilisateur',
+              description: 'User name',
               example: 'alice'
             },
             password: {
               type: 'string',
-              description: 'Mot de passe',
+              description: 'Password',
               example: 'password123'
             }
           }
@@ -61,7 +61,7 @@ const swaggerOptions = {
           properties: {
             message: {
               type: 'string',
-              example: 'Connexion réussie'
+              example: 'Connection successful'
             },
             user: {
               type: 'object',
@@ -86,7 +86,7 @@ const swaggerOptions = {
           properties: {
             error: {
               type: 'string',
-              example: 'Message d\'erreur'
+              example: 'Error message'
             }
           }
         }
@@ -151,8 +151,8 @@ const users = {
  * @swagger
  * /login:
  *   post:
- *     summary: Connexion utilisateur
- *     description: Authentifie un utilisateur avec son nom d'utilisateur et mot de passe
+ *     summary: User connection
+ *     description: Authenticate user with username and password
  *     tags: [Authentication]
  *     requestBody:
  *       required: true
@@ -162,19 +162,19 @@ const users = {
  *             $ref: '#/components/schemas/LoginRequest'
  *     responses:
  *       200:
- *         description: Connexion réussie
+ *         description: Connection successful
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/LoginResponse'
  *       400:
- *         description: Username et password requis
+ *         description: Username and password required
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
  *       401:
- *         description: Identifiants invalides
+ *         description: Invalid credentials
  *         content:
  *           application/json:
  *             schema:
@@ -184,15 +184,15 @@ app.post('/login', (req, res) => {
     const { username, password } = req.body;
     
     if (!username || !password) {
-        return res.status(400).json({ error: 'Username et password requis' });
+        return res.status(400).json({ error: 'Username and password required' });
     }
     
     const user = users[username];
     if (!user || user.password !== password) {
-        return res.status(401).json({ error: 'Identifiants invalides' });
+        return res.status(401).json({ error: 'Invalid credentials' });
     }
     
-    // Créer la session utilisateur
+    // Create user session
     req.session.user = {
         username: username,
         isAdmin: user.isAdmin,
@@ -207,7 +207,7 @@ app.post('/login', (req, res) => {
     };
     
     res.json({ 
-        message: 'Connexion réussie', 
+        message: 'Connection successful', 
         user: req.session.user 
     });
 });
@@ -216,12 +216,12 @@ app.post('/login', (req, res) => {
  * @swagger
  * /profile:
  *   get:
- *     summary: Obtenir le profil utilisateur
- *     description: Récupère les informations du profil de l'utilisateur connecté
+ *     summary: Get user profile
+ *     description: Get user profile connected
  *     tags: [Profile]
  *     responses:
  *       200:
- *         description: Profil utilisateur récupéré avec succès
+ *         description: User profile retrieved successfully
  *         content:
  *           application/json:
  *             schema:
@@ -229,11 +229,11 @@ app.post('/login', (req, res) => {
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Profil utilisateur
+ *                   example: User profile retrieved successfully
  *                 user:
  *                   type: object
  *       401:
- *         description: Non authentifié
+ *         description: Not authenticated
  *         content:
  *           application/json:
  *             schema:
@@ -241,11 +241,11 @@ app.post('/login', (req, res) => {
  */
 app.get('/profile', (req, res) => {
     if (!req.session.user) {
-        return res.status(401).json({ error: 'Non authentifié' });
+        return res.status(401).json({ error: 'Unauthorized' });
     }
     
     res.json({
-        message: 'Profil utilisateur',
+        message: 'User profile',
         user: req.session.user
     });
 });
@@ -254,8 +254,8 @@ app.get('/profile', (req, res) => {
  * @swagger
  * /update-profile:
  *   post:
- *     summary: Mise à jour du profil
- *     description: Met à jour les informations du profil utilisateur
+ *     summary: Update user profile
+ *     description: Update user profile
  *     tags: [Profile]
  *     requestBody:
  *       required: true
@@ -265,15 +265,15 @@ app.get('/profile', (req, res) => {
  *             $ref: '#/components/schemas/ProfileUpdate'
  *           examples:
  *             normal_update:
- *               summary: Mise à jour normale
+ *               summary: Normal update
  *               value:
  *                 email: "newemail@example.com"
  *                 fullName: "New Name"
  *                 preferences:
  *                   theme: "dark"
  *             extended_update:
- *               summary: Mise à jour étendue
- *               description: "Exemple de mise à jour avec plusieurs champs"
+ *               summary: Extended update
+ *               description: "Example of update with several fields"
  *               value:
  *                 email: "user@example.com"
  *                 fullName: "John Doe"
@@ -282,7 +282,7 @@ app.get('/profile', (req, res) => {
  *                   notifications: false
  *     responses:
  *       200:
- *         description: Profil mis à jour avec succès
+ *         description: User profile updated successfully
  *         content:
  *           application/json:
  *             schema:
@@ -290,13 +290,13 @@ app.get('/profile', (req, res) => {
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Profil mis à jour avec succès
+ *                   example: User profile updated successfully
  *                 profile:
  *                   type: object
  *                 user:
  *                   type: object
  *       401:
- *         description: Non authentifié
+ *         description: Unauthorized
  *         content:
  *           application/json:
  *             schema:
@@ -304,7 +304,7 @@ app.get('/profile', (req, res) => {
  */
 app.post('/update-profile', (req, res) => {
     if (!req.session.user) {
-        return res.status(401).json({ error: 'Non authentifié' });
+        return res.status(401).json({ error: 'Unauthorized' });
     }
     
     const updates = req.body;
@@ -341,7 +341,7 @@ app.post('/update-profile', (req, res) => {
         const finalPollutionDetected = isPolluted || hasProtoPollution;
         
         res.json({
-            message: 'Profil mis à jour avec succès',
+            message: 'User profile updated successfully',
             profile: req.session.user.profile,
             user: {
                 username: req.session.user.username,
@@ -351,7 +351,7 @@ app.post('/update-profile', (req, res) => {
             success: true
         });
     } catch (error) {
-        console.error('Erreur lors de la mise à jour du profil:', error);
+        console.error('Error updating profile:', error);
         
         // Vérifier si __proto__ était dans les updates même en cas d'erreur
         const hasProtoPollution = updates.hasOwnProperty('__proto__') && updates.__proto__.isAdmin === true;
@@ -360,7 +360,7 @@ app.post('/update-profile', (req, res) => {
         }
         
         res.json({
-            message: 'Erreur lors de la mise à jour du profil',
+            message: 'Error updating profile',
             error: error.message,
             user: {
                 username: req.session.user.username,
@@ -375,12 +375,12 @@ app.post('/update-profile', (req, res) => {
  * @swagger
  * /admin/users:
  *   get:
- *     summary: Liste des utilisateurs (Admin uniquement)
- *     description: Récupère la liste complète des utilisateurs avec leurs informations. Nécessite les privilèges administrateur
+ *     summary: List of users (Admin only)
+ *     description: Get the complete list of users with their information. Requires admin privileges
  *     tags: [Admin]
  *     responses:
  *       200:
- *         description: Liste des utilisateurs récupérée avec succès
+ *         description: List of users retrieved successfully
  *         content:
  *           application/json:
  *             schema:
@@ -388,21 +388,21 @@ app.post('/update-profile', (req, res) => {
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Liste des utilisateurs récupérée avec succès
+ *                   example: List of users retrieved successfully
  *                 users:
  *                   type: object
- *                   description: Liste des utilisateurs avec leurs informations complètes
+ *                   description: List of users with their complete information
  *                 totalUsers:
  *                   type: number
  *                   example: 4
  *       401:
- *         description: Non authentifié
+ *         description: Unauthorized
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
  *       403:
- *         description: Accès refusé - Privilèges administrateur requis
+ *         description: Access denied - Admin privileges required
  *         content:
  *           application/json:
  *             schema:
@@ -410,27 +410,27 @@ app.post('/update-profile', (req, res) => {
  *               properties:
  *                 error:
  *                   type: string
- *                   example: Accès refusé - Privilèges administrateur requis
+ *                   example: Access denied - Admin privileges required
  *                 isAdmin:
  *                   type: boolean
  *                   example: false
  */
 app.get('/admin/users', (req, res) => {
     if (!req.session.user) {
-        return res.status(401).json({ error: 'Non authentifié' });
+        return res.status(401).json({ error: 'Unauthorized' });
     }
     
     // Vérification du statut admin
     if (!req.session.user.isAdmin) {
         return res.status(403).json({ 
-            error: 'Accès refusé - Privilèges administrateur requis',
+            error: 'Access denied - Admin privileges required',
             isAdmin: req.session.user.isAdmin 
         });
     }
     
     // Retourner tous les utilisateurs avec leurs informations complètes
     res.json({
-        message: 'Liste des utilisateurs récupérée avec succès',
+        message: 'List of users retrieved successfully',
         users: users,
         totalUsers: Object.keys(users).length,
         requestedBy: req.session.user.username
@@ -441,11 +441,11 @@ app.get('/admin/users', (req, res) => {
 
 // Gestion des erreurs
 app.use((err, req, res, next) => {
-    console.error('Erreur:', err);
-    res.status(500).json({ error: 'Erreur interne du serveur' });
+    console.error('Error:', err);
+    res.status(500).json({ error: 'Internal server error' });
 });
 
 app.listen(PORT, () => {
-    console.log(`Serveur API démarré sur le port ${PORT}`);
+    console.log(`API server started on port ${PORT}`);
     console.log(`Documentation API: http://localhost:${PORT}/api-docs`);
 });
